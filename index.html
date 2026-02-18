@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Desafio dos Brodis 90D</title>
+  <style>
+    :root{
+      --bg:#0b0b0c;
+      --panel:#121214;
+      --panel2:#161619;
+      --text:#f5f5f7;
+      --muted:rgba(245,245,247,.72);
+      --line:rgba(255,255,255,.10);
+      --line2:rgba(255,255,255,.16);
+      --accent:#6dff9c; /* neon-ish */
+      --danger:#ff5a5f;
+      --warn:#ffcc00;
+      --radius:18px;
+      --radius-sm:12px;
+      --shadow: 0 12px 30px rgba(0,0,0,.45);
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      --sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family:var(--sans);
+      background: radial-gradient(1200px 600px at 20% -10%, rgba(255,255,255,.06), transparent 60%),
+                  radial-gradient(900px 500px at 90% 10%, rgba(109,255,156,.10), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      letter-spacing:-0.01em;
+    }
+    a{ color:inherit; }
+    .wrap{ max-width:1200px; margin:0 auto; padding:34px 18px 64px; }
+    .topbar{
+      display:flex; align-items:flex-start; justify-content:space-between; gap:14px; flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+    .title{
+      margin:0;
+      font-size:30px;
+      line-height:1.05;
+      letter-spacing:-0.03em;
+      font-weight:900;
+      text-transform:uppercase;
+    }
+    .subtitle{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.4;
+      max-width:820px;
+    }
+    .chips{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    .chip{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:9px 12px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      backdrop-filter: blur(6px);
+      box-shadow: 0 8px 22px rgba(0,0,0,.25);
+      font-weight:700;
+      font-size:13px;
+    }
+    .chip b{ font-weight:900; }
+    .actions{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .btn{
+      cursor:pointer;
+      border:1px solid var(--line2);
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
+      color:var(--text);
+      padding:10px 14px;
+      border-radius:999px;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      font-size:12px;
+      box-shadow: 0 10px 26px rgba(0,0,0,.35);
+      transition: transform .12s ease, border-color .12s ease, background .12s ease;
+      user-select:none;
+    }
+    .btn:hover{ transform: translateY(-1px); border-color: rgba(255,255,255,.28); }
+    .btn:active{ transform: translateY(0); }
+    .btn-accent{
+      border-color: rgba(109,255,156,.45);
+      background: linear-gradient(180deg, rgba(109,255,156,.22), rgba(109,255,156,.06));
+    }
+    .status{
+      color:var(--muted);
+      font-weight:700;
+      font-size:13px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .status .dot{
+      width:8px; height:8px; border-radius:50%;
+      background: rgba(255,255,255,.25);
+      box-shadow: 0 0 0 4px rgba(255,255,255,.06);
+    }
+    .status .dot.lead{
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(109,255,156,.14), 0 0 18px rgba(109,255,156,.25);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.08fr .92fr;
+      gap:14px;
+      margin-top:14px;
+    }
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.03));
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .card-h{
+      padding:14px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      border-bottom:1px solid var(--line);
+      background: linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.18));
+    }
+    .card-h h2{
+      margin:0;
+      font-size:14px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      font-weight:900;
+      color: rgba(245,245,247,.92);
+    }
+    .card-b{ padding:14px 16px; }
+    .rules ul{ margin:8px 0 0; padding-left:18px; line-height:1.65; color:rgba(245,245,247,.86); }
+    .rules li{ margin:4px 0; }
+    .rules b{ color:var(--text); }
+
+    .hint{
+      font-size:13px;
+      color: rgba(245,245,247,.78);
+      line-height:1.55;
+    }
+    .hint code{
+      font-family:var(--mono);
+      font-size:12px;
+      padding:2px 6px;
+      border-radius:8px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.35);
+      color: rgba(245,245,247,.92);
+    }
+
+    /* Table */
+    .table-wrap{ overflow:auto; }
+    table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      min-width: 1200px;
+      font-variant-numeric: tabular-nums;
+    }
+    thead th{
+      position:sticky; top:0;
+      z-index:3;
+      background: linear-gradient(180deg, rgba(18,18,20,.98), rgba(18,18,20,.90));
+      border-bottom:1px solid var(--line2);
+      border-right:1px solid var(--line);
+      padding:10px 10px;
+      text-align:center;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      font-weight:900;
+      white-space:nowrap;
+    }
+    thead tr:first-child th:first-child{ border-top-left-radius:16px; }
+    thead tr:first-child th:last-child{ border-top-right-radius:16px; }
+
+    tbody td{
+      border-right:1px solid var(--line);
+      border-bottom:1px solid var(--line);
+      padding:8px;
+      text-align:center;
+      background: rgba(0,0,0,.10);
+    }
+    tbody tr:hover td{ background: rgba(255,255,255,.035); }
+    tbody tr.leader td{
+      background: rgba(109,255,156,.07);
+    }
+
+    /* Sticky first column */
+    th.sticky, td.sticky{
+      position:sticky; left:0;
+      z-index:2;
+      text-align:left;
+      padding-left:12px;
+      background: linear-gradient(180deg, rgba(18,18,20,.98), rgba(18,18,20,.90));
+      border-right:1px solid var(--line2);
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.02em;
+    }
+    td.sticky{
+      z-index:1;
+      background: rgba(18,18,20,.75);
+    }
+
+    /* Inputs */
+    input{
+      width:100%;
+      border-radius: 999px;
+      padding:9px 12px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.42);
+      color: var(--text);
+      outline:none;
+      font-weight:800;
+      letter-spacing:.01em;
+      transition: border-color .12s ease, box-shadow .12s ease, transform .12s ease;
+    }
+    input::placeholder{ color: rgba(245,245,247,.35); font-weight:700; }
+    input:focus{
+      border-color: rgba(109,255,156,.55);
+      box-shadow: 0 0 0 4px rgba(109,255,156,.12);
+    }
+    .in{
+      background: rgba(109,255,156,.06);
+    }
+    .out{
+      font-family:var(--mono);
+      font-size:12px;
+      color: rgba(245,245,247,.86);
+    }
+    .out strong{ color: var(--text); }
+    .pill{
+      display:inline-flex; align-items:center; justify-content:center;
+      min-width: 56px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.32);
+    }
+    .pill.pos{ border-color: rgba(109,255,156,.35); background: rgba(109,255,156,.10); }
+    .pill.neg{ border-color: rgba(255,90,95,.35); background: rgba(255,90,95,.10); }
+    .pill.neu{ border-color: rgba(255,255,255,.12); }
+
+    .foot{
+      margin-top:10px;
+      color: rgba(245,245,247,.70);
+      font-size:12.5px;
+      line-height:1.5;
+    }
+    .kpi{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+    }
+    .kpi .box{
+      border:1px solid var(--line);
+      border-radius: 14px;
+      padding:10px 12px;
+      background: rgba(0,0,0,.24);
+      min-width: 170px;
+    }
+    .kpi .lbl{ font-size:11px; letter-spacing:.08em; text-transform:uppercase; color: rgba(245,245,247,.65); font-weight:900; }
+    .kpi .val{ margin-top:6px; font-size:18px; font-weight:1000; letter-spacing:-0.02em; }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div>
+        <h1 class="title">Desafio dos Brodis — 90 Dias</h1>
+        <p class="subtitle">
+          Disciplina > desculpa. Aqui a conta é simples: constância (70%) + evolução (30%).
+          Preencha os campos e o placar calcula sozinho.
+        </p>
+        <div class="chips">
+          <span class="chip">📅 Início: <b>01/03/2026</b></span>
+          <span class="chip">📅 Fim: <b>31/05/2026</b></span>
+          <span class="chip">🔒 Cap: <b>+100%/exercício</b></span>
+          <span class="chip">⚖️ Pesos: <b>Corrida 2</b> • <b>Barra 2</b> • <b>Flex 1</b> • <b>Abd 1</b></span>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-accent" onclick="resetAll()">Resetar</button>
+        <div class="status" id="status">
+          <span class="dot" id="dot"></span>
+          <span id="statusText">Preencha os campos para calcular o placar.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card rules">
+        <div class="card-h">
+          <h2>📜 Regulamento</h2>
+        </div>
+        <div class="card-b">
+          <div style="font-weight:900; letter-spacing:.06em; text-transform:uppercase; font-size:12px; color:rgba(245,245,247,.8);">Regras básicas</div>
+          <ul>
+            <li>❌ Não vale caminhada (mesmo que gaste 200 cal)</li>
+            <li>❌ Não vale alongamento ou aquecimento como treino</li>
+            <li>❌ Não pode chamar mais camaradas — <b>bonde fechado</b></li>
+            <li>👉 Bom senso: nada de esteira no migué, bike passeando, elíptico no modo conforto ou treino pra “cumprir tabela”.</li>
+            <li><b>Se não cansar de verdade, não conta.</b></li>
+          </ul>
+
+          <div style="margin-top:12px; font-weight:900; letter-spacing:.06em; text-transform:uppercase; font-size:12px; color:rgba(245,245,247,.8);">Critérios</div>
+          <ul>
+            <li><b>70%</b> — Assiduidade (check-ins no Gym Rats)</li>
+            <li><b>30%</b> — Performance (melhora percentual nos exercícios)</li>
+          </ul>
+
+          <div style="margin-top:12px;" class="hint">
+            <b>Formato:</b> corrida em <code>m:ss</code> (ex: <code>5:12</code>). Repetições = inteiro.
+            Assiduidade é calculada por <b>Feitos / Meta</b> (0–100%).
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-h">
+          <h2>⚡ Como o placar é calculado</h2>
+        </div>
+        <div class="card-b">
+          <div class="kpi">
+            <div class="box">
+              <div class="lbl">Assiduidade</div>
+              <div class="val">70%</div>
+            </div>
+            <div class="box">
+              <div class="lbl">Performance</div>
+              <div class="val">30%</div>
+            </div>
+            <div class="box">
+              <div class="lbl">Performance 0–100</div>
+              <div class="val">Pontos/600</div>
+            </div>
+          </div>
+          <div class="foot" style="margin-top:12px;">
+            <b>Repetições:</b> Melhora(%) = ((Final − Inicial)/Inicial)×100 (se Inicial=0, usa 1).<br>
+            <b>Corrida:</b> Melhora(%) = ((PaceInicial − PaceFinal)/PaceInicial)×100 (pace em segundos).<br>
+            <b>Cap:</b> melhora positiva limitada a +100% por exercício (negativo é livre).<br>
+            <b>Pontos:</b> Melhora(%) × peso. Total máximo = 600 (corrida 200 + barra 200 + flex 100 + abd 100).<br>
+            <b>Score Final:</b> 0.7×Assiduidade% + 0.3×Performance(0–100).
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px;">
+      <div class="card-h">
+        <h2>🧾 Tabela (auto)</h2>
+      </div>
+      <div class="card-b table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="sticky" rowspan="2">Participante</th>
+
+              <th colspan="4">🏃 Corrida 1km (peso 2)</th>
+              <th colspan="4">💪 Flexões (peso 1)</th>
+              <th colspan="4">🦍 Barra (peso 2)</th>
+              <th colspan="4">🔥 Abdominais (peso 1)</th>
+
+              <th colspan="3">📌 Assiduidade (70%)</th>
+              <th rowspan="2">Performance<br><span style="opacity:.65; font-size:11px;">(0–100)</span></th>
+              <th rowspan="2">🔥 Score Final<br><span style="opacity:.65; font-size:11px;">(70/30)</span></th>
+            </tr>
+            <tr>
+              <th>01/03</th><th>31/05</th><th>% (cap)</th><th>Pontos</th>
+              <th>01/03</th><th>31/05</th><th>% (cap)</th><th>Pontos</th>
+              <th>01/03</th><th>31/05</th><th>% (cap)</th><th>Pontos</th>
+              <th>01/03</th><th>31/05</th><th>% (cap)</th><th>Pontos</th>
+
+              <th>Feitos</th><th>Meta</th><th>%</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+        <div class="foot">
+          <b>Obs:</b> se você preencher só uma parte, a linha calcula o que der. O líder provisório é o maior <b>Score Final</b> válido.
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function init(){
+  const participants = ["Isaac","Lucas","Mateus","Reno"];
+  const tbody = document.getElementById("tbody");
+
+  const rowHtml = (name) => `
+    <tr data-name="${name}">
+      <td class="sticky">${name}</td>
+
+      ${cellInput("pace0","m:ss")}
+      ${cellInput("pace1","m:ss")}
+      ${cellOut("pacePct")}
+      ${cellOut("pacePts")}
+
+      ${cellInput("push0","0")}
+      ${cellInput("push1","0")}
+      ${cellOut("pushPct")}
+      ${cellOut("pushPts")}
+
+      ${cellInput("pull0","0")}
+      ${cellInput("pull1","0")}
+      ${cellOut("pullPct")}
+      ${cellOut("pullPts")}
+
+      ${cellInput("abs0","0")}
+      ${cellInput("abs1","0")}
+      ${cellOut("absPct")}
+      ${cellOut("absPts")}
+
+      ${cellInput("assDone","0")}
+      ${cellInput("assGoal","0")}
+      ${cellOut("assPct")}
+
+      ${cellOut("perf100")}
+      ${cellOut("final")}
+    </tr>
+  `;
+
+  function cellInput(key, placeholder){
+    return `
+      <td class="in">
+        <input data-k="${key}" placeholder="${placeholder}" />
+      </td>`;
+  }
+
+  function pillClassFromValue(v){
+    if (v === null) return "pill neu";
+    if (v > 0) return "pill pos";
+    if (v < 0) return "pill neg";
+    return "pill neu";
+  }
+
+  function cellOut(key){
+    return `
+      <td>
+        <span data-o="${key}" class="out">
+          <span class="pill neu">—</span>
+        </span>
+      </td>`;
+  }
+
+  participants.forEach(p => tbody.insertAdjacentHTML("beforeend", rowHtml(p)));
+
+  // wire events
+  tbody.querySelectorAll("input").forEach(inp => {
+    inp.addEventListener("input", () => {
+      calcRow(inp.closest("tr"));
+      calcAllStatus();
+    });
+  });
+
+  // initial calc
+  tbody.querySelectorAll("tr").forEach(tr => calcRow(tr));
+  calcAllStatus();
+})();
+
+function resetAll(){
+  document.querySelectorAll("#tbody input").forEach(i => i.value = "");
+  document.querySelectorAll("#tbody tr").forEach(tr => calcRow(tr));
+  calcAllStatus();
+}
+
+function fillExample(){
+  const rows = Array.from(document.querySelectorAll("#tbody tr"));
+  const example = [
+    { pace0:"5:10", pace1:"4:45", push0:"20", push1:"30", pull0:"6", pull1:"8", abs0:"35", abs1:"45", assDone:"42", assGoal:"60" },
+    { pace0:"5:30", pace1:"5:05", push0:"18", push1:"26", pull0:"4", pull1:"7", abs0:"30", abs1:"42", assDone:"55", assGoal:"60" },
+    { pace0:"4:55", pace1:"4:40", push0:"30", push1:"36", pull0:"10", pull1:"11", abs0:"50", abs1:"55", assDone:"50", assGoal:"60" },
+    { pace0:"6:05", pace1:"5:20", push0:"12", push1:"22", pull0:"2", pull1:"5", abs0:"25", abs1:"40", assDone:"40", assGoal:"60" },
+  ];
+  rows.forEach((tr, i) => {
+    const data = example[i] || example[0];
+    Object.entries(data).forEach(([k,v]) => {
+      const input = tr.querySelector(`input[data-k="${k}"]`);
+      if (input) input.value = v;
+    });
+    calcRow(tr);
+  });
+  calcAllStatus();
+}
+
+// ---- Math helpers ----
+function clampCapPositive(v){
+  // cap only positive improvements at +100% (1.0). Allow negatives.
+  if (!isFinite(v)) return null;
+  return Math.min(v, 1);
+}
+function toNumber(s){
+  if (s === null || s === undefined) return null;
+  const t = (""+s).trim().replace(",", ".");
+  if (t === "") return null;
+  const n = Number(t);
+  return isFinite(n) ? n : null;
+}
+function parsePaceToSeconds(s){
+  // Accepts m:ss or raw seconds
+  if (!s) return null;
+  const t = (""+s).trim();
+  if (!t) return null;
+  if (/^\d+$/.test(t)) return Number(t);
+  const m = t.match(/^(\d{1,2})\s*:\s*(\d{1,2})$/);
+  if (!m) return null;
+  const min = Number(m[1]), sec = Number(m[2]);
+  if (!isFinite(min) || !isFinite(sec) || sec >= 60) return null;
+  return min*60 + sec;
+}
+function fmtPct(v){
+  if (v === null) return {text:"—", cls:"pill neu"};
+  const pct = v*100;
+  const sign = pct > 0 ? "+" : "";
+  const cls = pct > 0 ? "pill pos" : (pct < 0 ? "pill neg" : "pill neu");
+  return {text: sign + pct.toFixed(1) + "%", cls};
+}
+function fmtNum(v){
+  if (v === null) return {text:"—", cls:"pill neu"};
+  const sign = v > 0 ? "+" : "";
+  const cls = v > 0 ? "pill pos" : (v < 0 ? "pill neg" : "pill neu");
+  return {text: sign + v.toFixed(1), cls};
+}
+function fmtPlain(v){
+  if (v === null) return {text:"—", cls:"pill neu"};
+  const cls = "pill neu";
+  return {text: v.toFixed(1), cls};
+}
+function setPill(tr, key, payload){
+  const holder = tr.querySelector(`[data-o="${key}"]`);
+  if (!holder) return;
+  holder.innerHTML = `<span class="${payload.cls}">${payload.text}</span>`;
+}
+function getIn(tr, key){
+  const el = tr.querySelector(`input[data-k="${key}"]`);
+  return el ? el.value : "";
+}
+function sumSafe(arr){
+  let hasAny = false;
+  let s = 0;
+  for (const v of arr){
+    if (v === null || v === undefined || !isFinite(v)) continue;
+    hasAny = true;
+    s += v;
+  }
+  return hasAny ? s : null;
+}
+function clamp(x, lo, hi){
+  if (x < lo) return lo;
+  if (x > hi) return hi;
+  return x;
+}
+
+function calcRow(tr){
+  // weights
+  const W_PACE = 2, W_PULL = 2, W_PUSH = 1, W_ABS = 1;
+
+  // read inputs
+  const pace0 = parsePaceToSeconds(getIn(tr, "pace0"));
+  const pace1 = parsePaceToSeconds(getIn(tr, "pace1"));
+
+  const push0raw = toNumber(getIn(tr, "push0"));
+  const push1 = toNumber(getIn(tr, "push1"));
+
+  const pull0raw = toNumber(getIn(tr, "pull0"));
+  const pull1 = toNumber(getIn(tr, "pull1"));
+
+  const abs0raw  = toNumber(getIn(tr, "abs0"));
+  const abs1  = toNumber(getIn(tr, "abs1"));
+
+  const assDone = toNumber(getIn(tr, "assDone"));
+  const assGoal = toNumber(getIn(tr, "assGoal"));
+
+  // Bases for reps (0 -> 1)
+  const push0 = (push0raw === null) ? null : (push0raw === 0 ? 1 : push0raw);
+  const pull0 = (pull0raw === null) ? null : (pull0raw === 0 ? 1 : pull0raw);
+  const abs0  = (abs0raw  === null) ? null : (abs0raw  === 0 ? 1 : abs0raw);
+
+  // Improvements
+  let paceImp = null;
+  if (pace0 !== null && pace1 !== null && pace0 > 0){
+    paceImp = clampCapPositive((pace0 - pace1) / pace0);
+  }
+  let pushImp = null;
+  if (push0 !== null && push1 !== null && push0 > 0){
+    pushImp = clampCapPositive((push1 - push0) / push0);
+  }
+  let pullImp = null;
+  if (pull0 !== null && pull1 !== null && pull0 > 0){
+    pullImp = clampCapPositive((pull1 - pull0) / pull0);
+  }
+  let absImp = null;
+  if (abs0 !== null && abs1 !== null && abs0 > 0){
+    absImp = clampCapPositive((abs1 - abs0) / abs0);
+  }
+
+  // Points (Melhora% × peso) in "percent points"
+  const pacePts = (paceImp === null) ? null : (paceImp * 100 * W_PACE);
+  const pushPts = (pushImp === null) ? null : (pushImp * 100 * W_PUSH);
+  const pullPts = (pullImp === null) ? null : (pullImp * 100 * W_PULL);
+  const absPts  = (absImp  === null) ? null : (absImp  * 100 * W_ABS);
+
+  // Total performance points max = 600
+  const perfTotal = sumSafe([pacePts, pushPts, pullPts, absPts]);
+  const perf100 = (perfTotal === null) ? null : (perfTotal / 600) * 100;
+
+  // Assiduidade % = done/goal, cap 100
+  let assPct = null;
+  if (assDone !== null && assGoal !== null && assGoal > 0){
+    assPct = clamp((assDone / assGoal) * 100, 0, 100);
+  }
+
+  // Final score = 70% assid + 30% perf100
+  let finalScore = null;
+  if (assPct !== null && perf100 !== null){
+    finalScore = (0.7 * assPct) + (0.3 * perf100);
+  }
+
+  // Output pills
+  setPill(tr, "pacePct", fmtPct(paceImp));
+  setPill(tr, "pacePts", fmtNum(pacePts));
+
+  setPill(tr, "pushPct", fmtPct(pushImp));
+  setPill(tr, "pushPts", fmtNum(pushPts));
+
+  setPill(tr, "pullPct", fmtPct(pullImp));
+  setPill(tr, "pullPts", fmtNum(pullPts));
+
+  setPill(tr, "absPct", fmtPct(absImp));
+  setPill(tr, "absPts", fmtNum(absPts));
+
+  setPill(tr, "assPct", assPct === null ? {text:"—", cls:"pill neu"} : {text: assPct.toFixed(1) + "%", cls:"pill neu"});
+  setPill(tr, "perf100", perf100 === null ? {text:"—", cls:"pill neu"} : {text: perf100.toFixed(1), cls:"pill neu"});
+  setPill(tr, "final", finalScore === null ? {text:"—", cls:"pill neu"} : {text: finalScore.toFixed(1), cls:"pill neu"});
+}
+
+function calcAllStatus(){
+  const rows = Array.from(document.querySelectorAll("#tbody tr"));
+  const scores = rows.map(tr => {
+    const name = tr.getAttribute("data-name");
+    const finalEl = tr.querySelector('[data-o="final"] .pill');
+    const val = finalEl ? Number(finalEl.textContent) : NaN;
+    return { name, val: isFinite(val) ? val : null, tr };
+  }).filter(x => x.val !== null);
+
+  // clear leader class
+  rows.forEach(r => r.classList.remove("leader"));
+
+  const statusText = document.getElementById("statusText");
+  const dot = document.getElementById("dot");
+
+  if (!scores.length){
+    statusText.textContent = "Preencha os campos para calcular o placar.";
+    dot.classList.remove("lead");
+    return;
+  }
+
+  scores.sort((a,b) => b.val - a.val);
+  const leader = scores[0];
+  leader.tr.classList.add("leader");
+
+  statusText.textContent = `Líder provisório: ${leader.name} (${leader.val.toFixed(1)})`;
+  dot.classList.add("lead");
+}
+</script>
+</body>
+</html>
